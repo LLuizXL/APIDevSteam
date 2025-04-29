@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Validations;
+using System.Threading.RateLimiting;
 using static System.Net.Mime.MediaTypeNames;
 
 namespace APIDevSteam.Controllers
@@ -207,6 +209,37 @@ namespace APIDevSteam.Controllers
             // Retorna a imagem em Base64
             return Ok(new { Base64Image = $"data:image/{Path.GetExtension(userImagePath).TrimStart('.')};base64,{base64Image}" });
         }
+
+
+
+        // Atualizar cadastro do usuário no login.
+        [HttpPut("UpdateUser")]
+        public async Task<IActionResult> UpdateUser([FromBody] Usuario updatedUser)
+        {
+            var userName = User?.Identity.Name; // Obtém o nome de usuário do token JWT
+            if (string.IsNullOrEmpty(userName))
+                return BadRequest("Usuário não encontrado.");
+
+            var user = await _userManager.FindByNameAsync(userName);
+            if (user == null)
+                return NotFound("Usuário não encontrado.");
+
+            user.NomeCompleto = updatedUser.NomeCompleto ?? user.NomeCompleto;
+            user.DataNascimento = updatedUser.DataNascimento;
+            user.PhoneNumber = updatedUser.PhoneNumber ?? user.PhoneNumber;
+            user.Email = updatedUser.Email ?? user.Email;
+            user.UserName = updatedUser.UserName ?? user.UserName;
+            user.NormalizedUserName = updatedUser.UserName?.ToUpper() ?? user.NormalizedUserName;
+            user.NormalizedEmail = updatedUser.Email?.ToUpper() ?? user.NormalizedEmail;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+                return Ok("Usuário atualizado com sucesso!");
+            return BadRequest(result.Errors);
+
+        }
+
+
 
     }
 }
