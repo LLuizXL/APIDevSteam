@@ -12,5 +12,8 @@
         public decimal? PrecoOriginal { get; set; }
         public bool? Lancamento { get; set; } = false;
 
+        // Lista de usuários que compraram o jogo
+        public ICollection<UsuarioJogo> UsuariosCompradores { get; set; } = new List<UsuarioJogo>();
+
     }
 }

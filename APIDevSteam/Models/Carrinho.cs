@@ -11,6 +11,7 @@
 
         public decimal ValorTotal { get; set; }
 
-
+        // Propriedade de navegação para os itens do carrinho
+        public ICollection<ItemCarrinho> ItensCarrinhos { get; set; } = new List<ItemCarrinho>();
     }
 }

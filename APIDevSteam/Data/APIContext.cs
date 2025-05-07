@@ -12,6 +12,7 @@ namespace APIDevSteam.Data
         }
 
         public DbSet<Usuario> Usuarios { get; set; } // DbSet para a entidade Usuario
+        public DbSet<UsuarioJogo> UsuariosJogos { get; set; }
         public DbSet<Game> Jogos { get; set; } // DbSet para a Classe Jogos
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<JogoCategoria> JogosCategoria { get; set; }
@@ -36,6 +37,18 @@ namespace APIDevSteam.Data
             modelBuilder.Entity<ItemCarrinho>().ToTable("ItensCarrinhos");
             modelBuilder.Entity<Cupom>().ToTable("Cupons");
             modelBuilder.Entity<CupomCarrinho>().ToTable("CuponsCarrinho");
+
+            // Configuração da relação entre Usuario e UsuarioJogo
+            modelBuilder.Entity<UsuarioJogo>()
+       .HasOne(uj => uj.Usuario)
+       .WithMany(u => u.JogosComprados)
+       .HasForeignKey(uj => uj.UsuarioId)
+       .HasPrincipalKey(u => u.Id); // Certifica-se de que a chave principal é usada corretamente
+
+            modelBuilder.Entity<UsuarioJogo>()
+                .HasOne(uj => uj.Game)
+                .WithMany()
+                .HasForeignKey(uj => uj.GameId);
 
         }
 

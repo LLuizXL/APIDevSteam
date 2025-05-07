@@ -113,8 +113,12 @@ namespace APIDevSteam.Controllers
         [HttpPost("FinalizarCompra/{id}")]
         public async Task<IActionResult> FinalizarCompra(Guid id)
         {
-            // Se carrinho de compra existe
-            var carrinho = await _context.Carrinhos.FindAsync(id);
+            // Verifica se o carrinho existe
+            var carrinho = await _context.Carrinhos
+         .Include(c => c.Usuario)
+         .Include(c => c.ItensCarrinhos) // Corrigido para ItensCarrinhos
+         .ThenInclude(ic => ic.Game)
+         .FirstOrDefaultAsync(c => c.CarrinhoId == id);
             if (carrinho == null)
             {
                 return NotFound();
@@ -135,7 +139,7 @@ namespace APIDevSteam.Controllers
 
             // Verifica se o carrinho está vazio
             var itensCarrinho = await _context.ItensCarrinhos.Where(i => i.CarrinhoId == id).ToListAsync();
-            if (itensCarrinho.Count == 0)
+            if (itensCarrinho.Count == 0 || !carrinho.ItensCarrinhos.Any())
             {
                 return BadRequest("Carrinho vazio.");
             }
@@ -149,22 +153,42 @@ namespace APIDevSteam.Controllers
                 {
                     valorTotal += jogo.Preco;
                 }
+
+            }
+            // Adiciona os jogos comprados à lista de jogos do usuário
+            foreach (var item in carrinho.ItensCarrinhos)
+            {
+                // Verifica se o jogo já foi comprado pelo usuário
+                var jogoJaComprado = await _context.UsuariosJogos
+                    .AnyAsync(uj => uj.UsuarioId == carrinho.UsuarioId.ToString() && uj.GameId == item.GameId);
+
+                if (!jogoJaComprado)
+                {
+                    var usuarioJogo = new UsuarioJogo
+                    {
+                        UsuarioId = carrinho.UsuarioId.ToString(),
+                        GameId = item.GameId.Value,
+                        DataCompra = DateTime.UtcNow
+                    };
+
+                    _context.UsuariosJogos.Add(usuarioJogo);
+                }
+
+                // Atualiza o carrinho
+                carrinho.Finalizado = true;
+                carrinho.DataFinalizacao = DateTime.Now;
+                carrinho.UsuarioId = Guid.Parse(usuarioId);
+                carrinho.ValorTotal = valorTotal;
+
+                _context.Entry(carrinho).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return Ok("Compra finalizada com sucesso");
             }
 
-            // Atualiza o carrinho
-            carrinho.Finalizado = true;
-            carrinho.DataFinalizacao = DateTime.Now;
-            carrinho.UsuarioId = Guid.Parse(usuarioId);
-            carrinho.ValorTotal = valorTotal;
 
-            _context.Entry(carrinho).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
 
-            return Ok();
+
         }
-
-
-
-
     }
 }
