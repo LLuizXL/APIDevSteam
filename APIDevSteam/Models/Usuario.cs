@@ -9,6 +9,7 @@ namespace APIDevSteam.Models
         }
         public DateOnly DataNascimento { get; set; }
         public string? NomeCompleto { get; set; }
+        public bool? AdminRole { get; set; }
 
     }
 }
