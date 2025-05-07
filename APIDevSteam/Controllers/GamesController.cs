@@ -248,6 +248,88 @@ namespace APIDevSteam.Controllers
             return Ok(jogo);
         }
 
-    }
 
+        [HttpGet("ListarJogosComDesconto")]
+        public async Task<IActionResult> ListarJogosComDesconto()
+        {
+            // Busca os jogos com desconto
+            var jogosComDesconto = await _context.Jogos
+                .Where(j => j.Desconto > 0)
+                .ToListAsync();
+            // Verifica se existem jogos com desconto
+            if (jogosComDesconto == null || jogosComDesconto.Count == 0)
+                // Se não houver jogos com desconto
+                return NotFound("Nenhum jogo encontrado com desconto.");
+            // Retorna a lista de jogos com desconto
+            return Ok(jogosComDesconto);
+        }
+
+        // [HttpGet] : Listar Jogos em Lançamento
+        [HttpGet("ListarJogosEmLancamento")]
+        public async Task<IActionResult> ListarJogosEmLancamento()
+        {
+            // Busca os jogos em lançamento
+            var jogosEmLancamento = await _context.Jogos
+                .Where(j => j.Lancamento == true)
+                .ToListAsync();
+            // Verifica se existem jogos em lançamento
+            if (jogosEmLancamento == null || jogosEmLancamento.Count == 0)
+                // Se não houver jogos em lançamento
+                return NotFound("Nenhum jogo encontrado em lançamento.");
+            // Retorna a lista de jogos em lançamento
+            return Ok(jogosEmLancamento);
+        }
+
+        // [HttpGet] : Listar Jogos por Categoria
+        [HttpGet("ListarJogosPorCategoria")]
+        public async Task<IActionResult> ListarJogosPorCategoria(string categoria)
+        {
+            // Buscar a categoria no banco de dados
+            var categoriaExistente = await _context.Categorias
+                .FirstOrDefaultAsync(c => c.Nome.Contains(categoria, StringComparison.OrdinalIgnoreCase));
+
+            // Verifica se a categoria existe
+            if (categoriaExistente == null)
+                return NotFound("Categoria não encontrada.");
+
+            // Busca os jogos associados à categoria
+            var jogosIdPorCategoria = await _context.JogosCategoria
+                .Where(jc => jc.CategoriaId == categoriaExistente.CategoriaId)
+                .ToListAsync();
+
+            // Verifica se existem jogos associados à categoria
+            if (jogosIdPorCategoria == null || jogosIdPorCategoria.Count == 0)
+                return NotFound("Nenhum jogo encontrado para esta categoria.");
+
+            // Busca os jogos com os IDs encontrados
+            var jogosPorCategoria = await _context.Jogos
+                .Where(j => jogosIdPorCategoria.Any(jc => jc.GameId == j.GameId))
+                .ToListAsync();
+
+            // Verifica se existem jogos associados à categoria
+            if (jogosPorCategoria == null || jogosPorCategoria.Count == 0)
+                return NotFound("Nenhum jogo encontrado para esta categoria.");
+
+            // Retorna a lista de jogos associados à categoria
+            return Ok(jogosPorCategoria);
+        }
+
+        // [HttpGet] : Listar Jogos por Nome
+        [HttpGet("ListarJogosPorNome")]
+        public async Task<IActionResult> ListarJogosPorNome(string nome)
+        {
+            // Busca os jogos com o nome fornecido
+            var jogosPorNome = await _context.Jogos
+                .Where(j => j.Titulo.Contains(nome, StringComparison.OrdinalIgnoreCase))
+                .ToListAsync();
+
+            // Verifica se existem jogos com o nome fornecido
+            if (jogosPorNome == null || jogosPorNome.Count == 0)
+                return NotFound("Nenhum jogo encontrado com este nome.");
+
+            // Retorna a lista de jogos encontrados
+            return Ok(jogosPorNome);
+
+        }
+    }
 }

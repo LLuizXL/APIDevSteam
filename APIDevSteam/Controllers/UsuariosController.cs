@@ -241,5 +241,24 @@ namespace APIDevSteam.Controllers
 
 
 
+
+
+        //Buscar um usuário por Id
+        [HttpGet("GetUserById")]
+        public async Task<IActionResult> getUserById(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("ID do usuário não pode ser nulo ou vazio.");
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return NotFound("Usuário não encontrado.");
+            return Ok(user);
+        }
+
+
+
+
+
+
     }
 }
