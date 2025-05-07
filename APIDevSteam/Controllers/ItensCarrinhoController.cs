@@ -78,34 +78,64 @@ namespace APIDevSteam.Controllers
         [HttpPost]
         public async Task<ActionResult<ItemCarrinho>> PostItemCarrinho(ItemCarrinho itemCarrinho)
         {
+            // Verifica se o carrinho existe
             var carrinho = await _context.Carrinhos.FindAsync(itemCarrinho.CarrinhoId);
             if (carrinho == null)
             {
                 return NotFound("Carrinho não encontrado.");
             }
 
+            // Verifica se o jogo existe
             var jogo = await _context.Jogos.FindAsync(itemCarrinho.GameId);
             if (jogo == null)
             {
                 return NotFound("Jogo não encontrado.");
             }
 
-            //Calcular o valor com desconto
-            itemCarrinho.ValorTotal = itemCarrinho.Quantidade * (jogo.Preco * (jogo.Desconto / 100));
+            // Verifica se o jogo já está no carrinho
+            var itemExistente = await _context.ItensCarrinhos
+                .FirstOrDefaultAsync(ic => ic.CarrinhoId == itemCarrinho.CarrinhoId && ic.GameId == itemCarrinho.GameId);
 
+            if (itemExistente != null)
+            {
+                // Atualiza a quantidade e o valor do item existente
+                itemExistente.Quantidade += itemCarrinho.Quantidade;
 
+                // Calcula o valor com desconto ou sem desconto
+                if (jogo.Desconto > 0)
+                {
+                    itemExistente.ValorTotal = itemExistente.Quantidade * (jogo.Preco - (jogo.Preco * (jogo.Desconto / 100)));
+                }
+                else
+                {
+                    itemExistente.ValorTotal = itemExistente.Quantidade * jogo.Preco;
+                }
 
-            //Calcular o valor total sem desconto
-            var valorSemDesconto = itemCarrinho.Quantidade * jogo.Preco;
+                // Atualiza o valor total do carrinho
+                carrinho.ValorTotal += itemCarrinho.Quantidade * (jogo.Desconto > 0
+                    ? (jogo.Preco - (jogo.Preco * (jogo.Desconto / 100)))
+                    : jogo.Preco);
+            }
+            else
+            {
+                // Calcula o valor com desconto ou sem desconto
+                if (jogo.Desconto > 0)
+                {
+                    itemCarrinho.ValorTotal = itemCarrinho.Quantidade * (jogo.Preco - (jogo.Preco * (jogo.Desconto / 100)));
+                }
+                else
+                {
+                    itemCarrinho.ValorTotal = itemCarrinho.Quantidade * jogo.Preco;
+                }
 
-            //Adiciona o valor total ao carrinho
-            carrinho.ValorTotal += itemCarrinho.ValorTotal;
+                // Adiciona o valor total do novo item ao carrinho
+                carrinho.ValorTotal += itemCarrinho.ValorTotal;
 
+                // Adiciona o novo item ao carrinho
+                _context.ItensCarrinhos.Add(itemCarrinho);
+            }
 
-
-
-
-            _context.ItensCarrinhos.Add(itemCarrinho);
+            // Salva as alterações no banco de dados
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetItemCarrinho", new { id = itemCarrinho.ItemCarrinhoId }, itemCarrinho);
