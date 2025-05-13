@@ -272,10 +272,10 @@ namespace APIDevSteam.Controllers
             }
 
             //Verifica se o cartão já existe (mesmas informações)
-            var cartaoExistente = await _context.Cartao.FirstOrDefaultAsync(c => c.numeroCartao == cartao.numeroCartao && c.NomeTitular == cartao.NomeTitular && c.dataValidade == cartao.dataValidade && c.codSeguranca == cartao.codSeguranca);
+            var cartaoExistente = await _context.Cartoes.FirstOrDefaultAsync(c => c.numeroCartao == cartao.numeroCartao && c.NomeTitular == cartao.NomeTitular && c.dataValidade == cartao.dataValidade && c.codSeguranca == cartao.codSeguranca);
             if (cartaoExistente == null)
             {
-                _context.Cartao.Add(cartao); // Adiciona o cartão no banco de dados
+                _context.Cartoes.Add(cartao); // Adiciona o cartão no banco de dados
                 await _context.SaveChangesAsync(); // Salva as mudançasS
                 cartaoExistente = cartao; // o cartão adicionado será o existente atual
             }

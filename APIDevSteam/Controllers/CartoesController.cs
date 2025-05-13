@@ -25,14 +25,14 @@ namespace APIDevSteam.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Cartao>>> GetCartao()
         {
-            return await _context.Cartao.ToListAsync();
+            return await _context.Cartoes.ToListAsync();
         }
 
         // GET: api/Cartoes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Cartao>> GetCartao(Guid id)
         {
-            var cartao = await _context.Cartao.FindAsync(id);
+            var cartao = await _context.Cartoes.FindAsync(id);
 
             if (cartao == null)
             {
@@ -78,7 +78,7 @@ namespace APIDevSteam.Controllers
         [HttpPost]
         public async Task<ActionResult<Cartao>> PostCartao(Cartao cartao)
         {
-            _context.Cartao.Add(cartao);
+            _context.Cartoes.Add(cartao);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetCartao", new { id = cartao.CartaoId }, cartao);
@@ -88,13 +88,13 @@ namespace APIDevSteam.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCartao(Guid id)
         {
-            var cartao = await _context.Cartao.FindAsync(id);
+            var cartao = await _context.Cartoes.FindAsync(id);
             if (cartao == null)
             {
                 return NotFound();
             }
 
-            _context.Cartao.Remove(cartao);
+            _context.Cartoes.Remove(cartao);
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -102,7 +102,7 @@ namespace APIDevSteam.Controllers
 
         private bool CartaoExists(Guid id)
         {
-            return _context.Cartao.Any(e => e.CartaoId == id);
+            return _context.Cartoes.Any(e => e.CartaoId == id);
         }
     }
 }
