@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using APIDevSteam.Data;
 using APIDevSteam.Models;
 using System.Security.Claims;
-using APIDevSteam.Migrations;
 
 namespace APIDevSteam.Controllers
 {

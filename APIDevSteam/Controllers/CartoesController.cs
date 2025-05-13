@@ -23,7 +23,7 @@ namespace APIDevSteam.Controllers
 
         // GET: api/Cartoes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cartao>>> GetCartao()
+        public async Task<ActionResult<IEnumerable<Cartao>>> GetCartoes()
         {
             return await _context.Cartoes.ToListAsync();
         }
@@ -78,6 +78,7 @@ namespace APIDevSteam.Controllers
         [HttpPost]
         public async Task<ActionResult<Cartao>> PostCartao(Cartao cartao)
         {
+
             _context.Cartoes.Add(cartao);
             await _context.SaveChangesAsync();
 

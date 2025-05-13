@@ -53,6 +53,39 @@ namespace APIDevSteam.Migrations
                     b.ToTable("Carrinhos", (string)null);
                 });
 
+            modelBuilder.Entity("APIDevSteam.Models.Cartao", b =>
+                {
+                    b.Property<Guid>("CartaoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("NomeTitular")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UsuarioId1")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("codSeguranca")
+                        .HasColumnType("int");
+
+                    b.Property<DateOnly>("dataValidade")
+                        .HasColumnType("date");
+
+                    b.Property<string>("numeroCartao")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CartaoId");
+
+                    b.HasIndex("UsuarioId1");
+
+                    b.ToTable("Cartoes", (string)null);
+                });
+
             modelBuilder.Entity("APIDevSteam.Models.Categoria", b =>
                 {
                     b.Property<Guid>("CategoriaId")
@@ -309,6 +342,30 @@ namespace APIDevSteam.Migrations
                     b.ToTable("Usuarios", (string)null);
                 });
 
+            modelBuilder.Entity("APIDevSteam.Models.UsuarioCartao", b =>
+                {
+                    b.Property<Guid>("UsuarioCartaoId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CartaoId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UsuarioId1")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UsuarioCartaoId");
+
+                    b.HasIndex("CartaoId");
+
+                    b.HasIndex("UsuarioId1");
+
+                    b.ToTable("UsuarioCartoes", (string)null);
+                });
+
             modelBuilder.Entity("APIDevSteam.Models.UsuarioJogo", b =>
                 {
                     b.Property<Guid>("UsuarioJogoId")
@@ -481,6 +538,15 @@ namespace APIDevSteam.Migrations
                     b.Navigation("Usuario");
                 });
 
+            modelBuilder.Entity("APIDevSteam.Models.Cartao", b =>
+                {
+                    b.HasOne("APIDevSteam.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId1");
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("APIDevSteam.Models.CupomCarrinho", b =>
                 {
                     b.HasOne("APIDevSteam.Models.Carrinho", "Carrinho")
@@ -543,6 +609,23 @@ namespace APIDevSteam.Migrations
                         .IsRequired();
 
                     b.Navigation("Game");
+                });
+
+            modelBuilder.Entity("APIDevSteam.Models.UsuarioCartao", b =>
+                {
+                    b.HasOne("APIDevSteam.Models.Cartao", "Cartao")
+                        .WithMany()
+                        .HasForeignKey("CartaoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("APIDevSteam.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId1");
+
+                    b.Navigation("Cartao");
+
+                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("APIDevSteam.Models.UsuarioJogo", b =>

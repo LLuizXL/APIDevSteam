@@ -1,5 +1,4 @@
 ﻿using APIDevSteam.Data;
-using APIDevSteam.Migrations;
 using APIDevSteam.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -264,41 +263,52 @@ namespace APIDevSteam.Controllers
         [HttpPost("AdicionarCartao")]
         public async Task<IActionResult> AdicionarCartao([FromBody] Cartao cartao, string userId)
         {
-            //Verifica se o usuário existe
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // Retorna os erros de validação
+            }
+
+            // Verifica se o usuário existe
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 return NotFound("Usuário não encontrado.");
             }
 
-            //Verifica se o cartão já existe (mesmas informações)
-            var cartaoExistente = await _context.Cartoes.FirstOrDefaultAsync(c => c.numeroCartao == cartao.numeroCartao && c.NomeTitular == cartao.NomeTitular && c.dataValidade == cartao.dataValidade && c.codSeguranca == cartao.codSeguranca);
+            // Verifica se o cartão já existe (mesmas informações)
+            var cartaoExistente = await _context.Cartoes.FirstOrDefaultAsync(c =>
+                c.numeroCartao == cartao.numeroCartao &&
+                c.NomeTitular == cartao.NomeTitular &&
+                c.dataValidade == cartao.dataValidade &&
+                c.codSeguranca == cartao.codSeguranca);
+
             if (cartaoExistente == null)
             {
                 _context.Cartoes.Add(cartao); // Adiciona o cartão no banco de dados
-                await _context.SaveChangesAsync(); // Salva as mudançasS
-                cartaoExistente = cartao; // o cartão adicionado será o existente atual
+                await _context.SaveChangesAsync(); // Salva as mudanças
+                cartaoExistente = cartao; // O cartão adicionado será o existente atual
             }
 
-            //Verifica se o o vinculo entre o usuário e cartão ja existe (cartão ja associado)
-            var usuarioCartaoExistente = await _context.UsuarioCartoes.AnyAsync(uc => uc.UsuarioId == Guid.Parse(userId) && uc.CartaoId == cartaoExistente.CartaoId);
+            // Verifica se o vínculo entre o usuário e o cartão já existe
+            var usuarioCartaoExistente = await _context.UsuarioCartoes.AnyAsync(uc =>
+                uc.UsuarioId == Guid.Parse(userId) && uc.CartaoId == cartaoExistente.CartaoId);
+
             if (usuarioCartaoExistente)
             {
                 return BadRequest("O cartão já foi vinculado a este usuário.");
             }
 
-            //Cria o vinculo do cartão com o usuário
+            // Cria o vínculo do cartão com o usuário
             var cartaoUsuario = new UsuarioCartao
             {
                 UsuarioId = Guid.Parse(userId),
                 CartaoId = cartaoExistente.CartaoId
             };
 
+            _context.UsuarioCartoes.Add(cartaoUsuario); // Adiciona o vínculo no banco de dados
+            await _context.SaveChangesAsync(); // Salva a mudança
 
-            _context.UsuarioCartoes.Add(cartaoUsuario);  //Adiciona o vinculo no banco de dados
-            await _context.SaveChangesAsync(); //Salva a mudança
-
-            return Ok("Cartão Cadastrado com sucesso!"); // confirma o cadastro do cartão
+            return Ok("Cartão cadastrado com sucesso!"); // Confirma o cadastro do cartão
         }
 
 
