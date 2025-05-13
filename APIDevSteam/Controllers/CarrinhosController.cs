@@ -9,6 +9,7 @@ using APIDevSteam.Data;
 using APIDevSteam.Models;
 using System.Security.Claims;
 using APIDevSteam.Migrations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APIDevSteam.Controllers
 {
@@ -24,6 +25,7 @@ namespace APIDevSteam.Controllers
         }
 
         // GET: api/Carrinhos
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Carrinho>>> GetCarrinhos()
         {
@@ -32,7 +34,8 @@ namespace APIDevSteam.Controllers
 
 
 
-        // GET: api/Carrinhos/5
+        // GET: api/Carrinhos/5]
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Carrinho>> GetCarrinho(Guid id)
         {
@@ -48,6 +51,7 @@ namespace APIDevSteam.Controllers
 
         // PUT: api/Carrinhos/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCarrinho(Guid id, Carrinho carrinho)
         {
@@ -79,6 +83,7 @@ namespace APIDevSteam.Controllers
 
         // POST: api/Carrinhos
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Carrinho>> PostCarrinho(Carrinho carrinho)
         {
@@ -91,6 +96,7 @@ namespace APIDevSteam.Controllers
         }
 
         // DELETE: api/Carrinhos/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCarrinho(Guid id)
         {
@@ -110,6 +116,7 @@ namespace APIDevSteam.Controllers
         {
             return _context.Carrinhos.Any(e => e.CarrinhoId == id);
         }
+        [Authorize]
         [HttpPost("FinalizarCompra/{id}")]
         public async Task<IActionResult> FinalizarCompra(Guid id)
         {

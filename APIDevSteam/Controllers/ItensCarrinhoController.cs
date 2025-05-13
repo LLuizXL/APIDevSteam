@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIDevSteam.Data;
 using APIDevSteam.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APIDevSteam.Controllers
 {
@@ -22,6 +23,7 @@ namespace APIDevSteam.Controllers
         }
 
         // GET: api/ItensCarrinho
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ItemCarrinho>>> GetItensCarrinhos()
         {
@@ -29,6 +31,7 @@ namespace APIDevSteam.Controllers
         }
 
         // GET: api/ItensCarrinho/5
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<ItemCarrinho>> GetItemCarrinho(Guid id)
         {
@@ -44,6 +47,7 @@ namespace APIDevSteam.Controllers
 
         // PUT: api/ItensCarrinho/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutItemCarrinho(Guid id, ItemCarrinho itemCarrinho)
         {
@@ -75,6 +79,7 @@ namespace APIDevSteam.Controllers
 
         // POST: api/ItensCarrinho
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<ItemCarrinho>> PostItemCarrinho(ItemCarrinho itemCarrinho)
         {
@@ -142,6 +147,7 @@ namespace APIDevSteam.Controllers
         }
 
         // DELETE: api/ItensCarrinho/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItemCarrinho(ItemCarrinho itemCarrinho)
         {
@@ -177,6 +183,7 @@ namespace APIDevSteam.Controllers
             return _context.ItensCarrinhos.Any(e => e.ItemCarrinhoId == id);
         }
         // Aumentar a quantidade de um jogo, recebendo o id do jogo e verificar se ele existe no carrinho
+        [Authorize]
         [HttpPut("AumentarQuantidade/{id}")]
         public async Task<ActionResult<ItemCarrinho>> AumentarQuantidade(Guid id)
         {
@@ -209,6 +216,7 @@ namespace APIDevSteam.Controllers
         }
 
         // Diminuir a quantidade de um jogo, recebendo o id do jogo e verificar se ele existe no carrinho
+        [Authorize]
         [HttpPut("DiminuirQuantidade/{id}")]
         public async Task<ActionResult<ItemCarrinho>> DiminuirQuantidade(Guid id)
         {

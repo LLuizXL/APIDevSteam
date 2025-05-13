@@ -9,6 +9,7 @@ using APIDevSteam.Data;
 using APIDevSteam.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APIDevSteam.Controllers
 {
@@ -50,6 +51,7 @@ namespace APIDevSteam.Controllers
 
         // PUT: api/Games/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutGame(Guid id, Game game)
         {
@@ -81,6 +83,7 @@ namespace APIDevSteam.Controllers
 
         // POST: api/Games
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Game>> PostGame(Game game)
         {
@@ -91,6 +94,7 @@ namespace APIDevSteam.Controllers
         }
 
         // DELETE: api/Games/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteGame(Guid id)
         {
@@ -113,6 +117,7 @@ namespace APIDevSteam.Controllers
 
 
         // [HttpPOST] : Upload da Foto de Game
+        [Authorize(Roles = "Admin")]
         [HttpPost("UploadGamePicture")]
         public async Task<IActionResult> UploadProfilePicture(IFormFile file, Guid JogoId)
         {
@@ -170,42 +175,43 @@ namespace APIDevSteam.Controllers
 
         // [HttpGET] : Buscar a imagem de jogo e retornar como Base64
         [HttpGet("GetGamePicture")]
-        public async Task<IActionResult> GetProfilePicture(Guid jogoId)
+        public async Task<IActionResult> GetGamePicture(Guid jogoId)
         {
             // Verifica se o jogo existe
             var jogo = await _context.Jogos.FindAsync(jogoId);
             if (jogo == null)
-                return NotFound("Usuário não encontrado.");
+                return NotFound("Jogo não encontrado.");
 
             // Caminho da imagem na pasta Resources/Profile
             var gameFolder = Path.Combine(_webHostEnvironment.ContentRootPath, "Resources", "Games");
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
 
             // Procura a imagem do usuário com base no ID
-            string? userImagePath = null;
+            string? gameImagePath = null;
             foreach (var extension in allowedExtensions)
             {
                 var potentialPath = Path.Combine(gameFolder, $"{jogo.GameId}{extension}");
                 if (System.IO.File.Exists(potentialPath))
                 {
-                    userImagePath = potentialPath;
+                    gameImagePath = potentialPath;
                     break;
                 }
             }
             // Se a imagem não for encontrada
-            if (userImagePath == null)
+            if (gameImagePath == null)
                 return NotFound("Imagem de perfil não encontrada.");
 
             // Lê o arquivo como um array de bytes
-            var imageBytes = await System.IO.File.ReadAllBytesAsync(userImagePath);
+            var imageBytes = await System.IO.File.ReadAllBytesAsync(gameImagePath);
 
             // Converte os bytes para Base64
             var base64Image = Convert.ToBase64String(imageBytes);
 
             // Retorna a imagem em Base64
-            return Ok(new { Base64Image = $"data:image/{Path.GetExtension(userImagePath).TrimStart('.')};base64,{base64Image}" });
+            return Ok(new { Base64Image = $"data:image/{Path.GetExtension(gameImagePath).TrimStart('.')};base64,{base64Image}" });
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("RemoverDesconto")]
         public async Task<IActionResult> RemoverDesconto(Guid jogoId)
         {
@@ -224,7 +230,7 @@ namespace APIDevSteam.Controllers
             return Ok(jogo);
         }
 
-
+        [Authorize(Roles = "Admin")]
         [HttpPut("AplicarDesconto")]
         public async Task<IActionResult> AplicarDesconto(Guid jogoId, int desconto)
         {

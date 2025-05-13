@@ -1,6 +1,7 @@
 ﻿using APIDevSteam.Data;
 using APIDevSteam.Migrations;
 using APIDevSteam.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace APIDevSteam.Controllers
 
         }
 
-
+        [Authorize]
         [HttpPost("CreateRole")] // Post: Criar uma Role
         public async Task<IActionResult> CreateRole([FromBody] string roleName)
         {
@@ -52,6 +53,7 @@ namespace APIDevSteam.Controllers
 
         }
 
+        [Authorize]
         [HttpPost("AddRoleToUser")] // Post: Adicionar um Usuário a uma Role
         public async Task<IActionResult> AddRoleToUser(string userId, string roleName)
         {
@@ -83,6 +85,7 @@ namespace APIDevSteam.Controllers
 
         }
 
+        [Authorize]
         [HttpGet("GetUsersByRole")]
         public async Task<IActionResult> GetUsersById(string roleName)
         {
@@ -260,7 +263,8 @@ namespace APIDevSteam.Controllers
         }
 
 
-        //Adicionar uma forma de pagamento 
+        //Adicionar uma forma de pagamento
+        [Authorize]
         [HttpPost("AdicionarCartao")]
         public async Task<IActionResult> AdicionarCartao([FromBody] Cartao cartao, string userId)
         {
