@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIDevSteam.Data;
 using APIDevSteam.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APIDevSteam.Controllers
 {
@@ -22,6 +23,7 @@ namespace APIDevSteam.Controllers
         }
 
         // GET: api/ItensCarrinho
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ItemCarrinho>>> GetItensCarrinhos()
         {
@@ -29,6 +31,7 @@ namespace APIDevSteam.Controllers
         }
 
         // GET: api/ItensCarrinho/5
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<ItemCarrinho>> GetItemCarrinho(Guid id)
         {
@@ -44,6 +47,7 @@ namespace APIDevSteam.Controllers
 
         // PUT: api/ItensCarrinho/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutItemCarrinho(Guid id, ItemCarrinho itemCarrinho)
         {
@@ -75,10 +79,10 @@ namespace APIDevSteam.Controllers
 
         // POST: api/ItensCarrinho
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPost]
-        public async Task<ActionResult<ItemCarrinho>> PostItemCarrinho(ItemCarrinho itemCarrinho, LogicaCarrinho logicaCarrinho)
+        public async Task<ActionResult<ItemCarrinho>> PostItemCarrinho(ItemCarrinho itemCarrinho)
         {
-            var diminuir = logicaCarrinho.Diminuir;
             // Verifica se o carrinho existe
             var carrinho = await _context.Carrinhos.FindAsync(itemCarrinho.CarrinhoId);
             if (carrinho == null)
@@ -102,12 +106,6 @@ namespace APIDevSteam.Controllers
                 // Atualiza a quantidade e o valor do item existente
                 itemExistente.Quantidade += itemCarrinho.Quantidade;
 
-                if (diminuir == true && itemExistente.Quantidade > 1)
-                {
-                    itemExistente.Quantidade -= 1;
-                }
-
-
                 // Calcula o valor com desconto ou sem desconto
                 if (jogo.Desconto > 0)
                 {
@@ -125,7 +123,6 @@ namespace APIDevSteam.Controllers
             }
             else
             {
-
                 // Calcula o valor com desconto ou sem desconto
                 if (jogo.Desconto > 0)
                 {
@@ -150,6 +147,7 @@ namespace APIDevSteam.Controllers
         }
 
         // DELETE: api/ItensCarrinho/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteItemCarrinho(ItemCarrinho itemCarrinho)
         {
@@ -183,6 +181,78 @@ namespace APIDevSteam.Controllers
         private bool ItemCarrinhoExists(Guid id)
         {
             return _context.ItensCarrinhos.Any(e => e.ItemCarrinhoId == id);
+        }
+        // Aumentar a quantidade de um jogo, recebendo o id do jogo e verificar se ele existe no carrinho
+        [Authorize]
+        [HttpPut("AumentarQuantidade/{id}")]
+        public async Task<ActionResult<ItemCarrinho>> AumentarQuantidade(Guid id)
+        {
+            var itemCarrinho = await _context.ItensCarrinhos.FindAsync(id);
+            if (itemCarrinho == null)
+            {
+                return NotFound("Item não encontrado.");
+            }
+            // Verifica se o jogo existe
+            var jogo = _context.Jogos.Find(itemCarrinho.GameId);
+            if (jogo == null)
+            {
+                return NotFound("Jogo não encontrado.");
+            }
+            // Aumenta a quantidade
+            itemCarrinho.Quantidade++;
+            itemCarrinho.ValorTotal = itemCarrinho.Quantidade * jogo.Preco;
+
+            // Alterar o valor total do carrinho
+            var carrinho = await _context.Carrinhos.FindAsync(itemCarrinho.CarrinhoId);
+            if (carrinho == null)
+            {
+                return NotFound("Carrinho não encontrado.");
+            }
+            carrinho.ValorTotal += jogo.Preco;
+            _context.Entry(carrinho).State = EntityState.Modified;
+
+            _context.SaveChanges();
+            return Ok(itemCarrinho);
+        }
+
+        // Diminuir a quantidade de um jogo, recebendo o id do jogo e verificar se ele existe no carrinho
+        [Authorize]
+        [HttpPut("DiminuirQuantidade/{id}")]
+        public async Task<ActionResult<ItemCarrinho>> DiminuirQuantidade(Guid id)
+        {
+            var itemCarrinho = await _context.ItensCarrinhos.FindAsync(id);
+            if (itemCarrinho == null)
+            {
+                return NotFound("Item não encontrado.");
+            }
+            // Verifica se o jogo existe
+            var jogo = await _context.Jogos.FindAsync(itemCarrinho.GameId);
+            if (jogo == null)
+            {
+                return NotFound("Jogo não encontrado.");
+            }
+            // Diminui a quantidade
+            if (itemCarrinho.Quantidade > 1)
+            {
+                itemCarrinho.Quantidade--;
+                itemCarrinho.ValorTotal = itemCarrinho.Quantidade * jogo.Preco;
+
+                // Alterar o valor total do carrinho
+                var carrinho = await _context.Carrinhos.FindAsync(itemCarrinho.CarrinhoId);
+                if (carrinho == null)
+                {
+                    return NotFound("Carrinho não encontrado.");
+                }
+                carrinho.ValorTotal -= jogo.Preco;
+                _context.Entry(carrinho).State = EntityState.Modified;
+
+                await _context.SaveChangesAsync();
+                return Ok(itemCarrinho);
+            }
+            else
+            {
+                return BadRequest("A quantidade não pode ser menor que 1.");
+            }
         }
     }
 }

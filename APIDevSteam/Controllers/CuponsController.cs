@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIDevSteam.Data;
 using APIDevSteam.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APIDevSteam.Controllers
 {
@@ -44,6 +45,7 @@ namespace APIDevSteam.Controllers
 
         // PUT: api/Cupons/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCupom(Guid id, Cupom cupom)
         {
@@ -75,6 +77,7 @@ namespace APIDevSteam.Controllers
 
         // POST: api/Cupons
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<Cupom>> PostCupom(Cupom cupom)
         {
@@ -86,6 +89,7 @@ namespace APIDevSteam.Controllers
         }
 
         // DELETE: api/Cupons/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCupom(Guid id)
         {

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIDevSteam.Data;
 using APIDevSteam.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APIDevSteam.Controllers
 {
@@ -22,6 +23,7 @@ namespace APIDevSteam.Controllers
         }
 
         // GET: api/Cartoes
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Cartao>>> GetCartoes()
         {
@@ -29,6 +31,7 @@ namespace APIDevSteam.Controllers
         }
 
         // GET: api/Cartoes/5
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Cartao>> GetCartao(Guid id)
         {
@@ -44,6 +47,7 @@ namespace APIDevSteam.Controllers
 
         // PUT: api/Cartoes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCartao(Guid id, Cartao cartao)
         {
@@ -75,6 +79,7 @@ namespace APIDevSteam.Controllers
 
         // POST: api/Cartoes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Cartao>> PostCartao(Cartao cartao)
         {
@@ -86,6 +91,7 @@ namespace APIDevSteam.Controllers
         }
 
         // DELETE: api/Cartoes/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCartao(Guid id)
         {

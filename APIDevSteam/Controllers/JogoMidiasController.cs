@@ -9,6 +9,7 @@ using APIDevSteam.Data;
 using APIDevSteam.Models;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APIDevSteam.Controllers
 {
@@ -49,6 +50,7 @@ namespace APIDevSteam.Controllers
 
         // PUT: api/JogoMidias/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutJogoMidia(Guid id, JogoMidia jogoMidia)
         {
@@ -80,6 +82,7 @@ namespace APIDevSteam.Controllers
 
         // POST: api/JogoMidias
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<JogoMidia>> PostJogoMidia(JogoMidia jogoMidia)
         {
@@ -90,6 +93,7 @@ namespace APIDevSteam.Controllers
         }
 
         // DELETE: api/JogoMidias/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteJogoMidia(Guid id)
         {

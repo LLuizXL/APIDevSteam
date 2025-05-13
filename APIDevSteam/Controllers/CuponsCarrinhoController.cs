@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIDevSteam.Data;
 using APIDevSteam.Models;
-
+using APIDevSteam.Migrations;
+using Microsoft.AspNetCore.Authorization;
 
 namespace APIDevSteam.Controllers
 {
@@ -45,6 +46,7 @@ namespace APIDevSteam.Controllers
 
         // PUT: api/CuponsCarrinho/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCupomCarrinho(Guid id, CupomCarrinho cupomCarrinho)
         {
@@ -75,7 +77,8 @@ namespace APIDevSteam.Controllers
         }
 
         // POST: api/CuponsCarrinho
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<CupomCarrinho>> PostCupomCarrinho(CupomCarrinho cupomCarrinho)
         {
@@ -86,6 +89,7 @@ namespace APIDevSteam.Controllers
         }
 
         // DELETE: api/CuponsCarrinho/5
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCupomCarrinho(Guid id)
         {
@@ -107,6 +111,7 @@ namespace APIDevSteam.Controllers
         }
 
         // Adicionar um cupom de desconto no valor total da venda
+        [Authorize]
         [HttpPost("AdicionarCupom")]
         public async Task<IActionResult> AdicionarCupom(Guid idCarrinho, Guid idCupom)
         {

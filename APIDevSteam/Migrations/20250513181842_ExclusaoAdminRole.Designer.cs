@@ -4,6 +4,7 @@ using APIDevSteam.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APIDevSteam.Migrations
 {
     [DbContext(typeof(APIContext))]
-    partial class APIContextModelSnapshot : ModelSnapshot
+    [Migration("20250513181842_ExclusaoAdminRole")]
+    partial class ExclusaoAdminRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -518,15 +521,6 @@ namespace APIDevSteam.Migrations
                 });
 
             modelBuilder.Entity("APIDevSteam.Models.Carrinho", b =>
-                {
-                    b.HasOne("APIDevSteam.Models.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId1");
-
-                    b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("APIDevSteam.Models.Cartao", b =>
                 {
                     b.HasOne("APIDevSteam.Models.Usuario", "Usuario")
                         .WithMany()
