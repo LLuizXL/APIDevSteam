@@ -76,8 +76,9 @@ namespace APIDevSteam.Controllers
         // POST: api/ItensCarrinho
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<ItemCarrinho>> PostItemCarrinho(ItemCarrinho itemCarrinho)
+        public async Task<ActionResult<ItemCarrinho>> PostItemCarrinho(ItemCarrinho itemCarrinho, LogicaCarrinho logicaCarrinho)
         {
+            var diminuir = logicaCarrinho.Diminuir;
             // Verifica se o carrinho existe
             var carrinho = await _context.Carrinhos.FindAsync(itemCarrinho.CarrinhoId);
             if (carrinho == null)
@@ -101,6 +102,12 @@ namespace APIDevSteam.Controllers
                 // Atualiza a quantidade e o valor do item existente
                 itemExistente.Quantidade += itemCarrinho.Quantidade;
 
+                if (diminuir == true && itemExistente.Quantidade > 1)
+                {
+                    itemExistente.Quantidade -= 1;
+                }
+
+
                 // Calcula o valor com desconto ou sem desconto
                 if (jogo.Desconto > 0)
                 {
@@ -118,6 +125,7 @@ namespace APIDevSteam.Controllers
             }
             else
             {
+
                 // Calcula o valor com desconto ou sem desconto
                 if (jogo.Desconto > 0)
                 {
