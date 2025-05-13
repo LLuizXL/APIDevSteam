@@ -1,4 +1,5 @@
-﻿using APIDevSteam.Migrations;
+﻿using APIDevSteam.Data;
+using APIDevSteam.Migrations;
 using APIDevSteam.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -17,14 +18,17 @@ namespace APIDevSteam.Controllers
         private readonly UserManager<Usuario> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IWebHostEnvironment _webHostEnvironment; // Informações do Host do servidor web
+        private readonly APIContext _context;
 
         //Método Construtor com as injeções de dependência
 
-        public UsuariosController(UserManager<Usuario> userManager, RoleManager<IdentityRole> roleManager, IWebHostEnvironment webHostEnvironment)
+        public UsuariosController(UserManager<Usuario> userManager, RoleManager<IdentityRole> roleManager, IWebHostEnvironment webHostEnvironment, APIContext context)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _webHostEnvironment = webHostEnvironment;
+            _context = context;
+
         }
 
 
@@ -256,6 +260,46 @@ namespace APIDevSteam.Controllers
         }
 
 
+        //Adicionar uma forma de pagamento 
+        [HttpPost("AdicionarCartao")]
+        public async Task<IActionResult> AdicionarCartao([FromBody] Cartao cartao, string userId)
+        {
+            //Verifica se o usuário existe
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("Usuário não encontrado.");
+            }
+
+            //Verifica se o cartão já existe (mesmas informações)
+            var cartaoExistente = await _context.Cartoes.FirstOrDefaultAsync(c => c.numeroCartao == cartao.numeroCartao && c.NomeTitular == cartao.NomeTitular && c.dataValidade == cartao.dataValidade && c.codSeguranca == cartao.codSeguranca);
+            if (cartaoExistente == null)
+            {
+                _context.Cartoes.Add(cartao); // Adiciona o cartão no banco de dados
+                await _context.SaveChangesAsync(); // Salva as mudançasS
+                cartaoExistente = cartao; // o cartão adicionado será o existente atual
+            }
+
+            //Verifica se o o vinculo entre o usuário e cartão ja existe (cartão ja associado)
+            var usuarioCartaoExistente = await _context.UsuarioCartoes.AnyAsync(uc => uc.UsuarioId == Guid.Parse(userId) && uc.CartaoId == cartaoExistente.CartaoId);
+            if (usuarioCartaoExistente)
+            {
+                return BadRequest("O cartão já foi vinculado a este usuário.");
+            }
+
+            //Cria o vinculo do cartão com o usuário
+            var cartaoUsuario = new UsuarioCartao
+            {
+                UsuarioId = Guid.Parse(userId),
+                CartaoId = cartaoExistente.CartaoId
+            };
+
+
+            _context.UsuarioCartoes.Add(cartaoUsuario);  //Adiciona o vinculo no banco de dados
+            await _context.SaveChangesAsync(); //Salva a mudança
+
+            return Ok("Cartão Cadastrado com sucesso!"); // confirma o cadastro do cartão
+        }
 
 
 
