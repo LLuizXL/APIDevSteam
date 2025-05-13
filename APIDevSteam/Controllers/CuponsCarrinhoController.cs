@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using APIDevSteam.Data;
 using APIDevSteam.Models;
-using APIDevSteam.Migrations;
+
 
 namespace APIDevSteam.Controllers
 {

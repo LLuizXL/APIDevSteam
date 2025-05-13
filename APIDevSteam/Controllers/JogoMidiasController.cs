@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using APIDevSteam.Data;
 using APIDevSteam.Models;
 using System.Runtime.CompilerServices;
-using APIDevSteam.Migrations;
 using Microsoft.AspNetCore.Hosting;
 
 namespace APIDevSteam.Controllers
