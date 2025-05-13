@@ -9,7 +9,6 @@ namespace APIDevSteam.Models
         }
         public DateOnly DataNascimento { get; set; }
         public string? NomeCompleto { get; set; }
-        public bool? AdminRole { get; set; }
 
         // Lista de jogos comprados pelo usuário
         public ICollection<UsuarioJogo> JogosComprados { get; set; } = new List<UsuarioJogo>();
