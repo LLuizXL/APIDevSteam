@@ -113,38 +113,38 @@ namespace APIDevSteam.Controllers
         [HttpPost("FinalizarCompra/{id}")]
         public async Task<IActionResult> FinalizarCompra(Guid id)
         {
-            // Verifica se o carrinho existe
+            // Verifica se o carrinho existe  
             var carrinho = await _context.Carrinhos
-         .Include(c => c.Usuario)
-         .Include(c => c.ItensCarrinhos) // Corrigido para ItensCarrinhos
-         .ThenInclude(ic => ic.Game)
-         .FirstOrDefaultAsync(c => c.CarrinhoId == id);
+                .Include(c => c.Usuario)
+                .Include(c => c.ItensCarrinhos)
+                .ThenInclude(ic => ic.Game)
+                .FirstOrDefaultAsync(c => c.CarrinhoId == id);
             if (carrinho == null)
             {
                 return NotFound();
             }
 
-            // Pegar o Id do IdentityUser logado a partir do token
+            // Pegar o Id do IdentityUser logado a partir do token  
             var usuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (usuarioId == null)
             {
                 return Unauthorized("Usuário não autenticado.");
             }
 
-            // Verifica se o carrinho já foi finalizado
+            // Verifica se o carrinho já foi finalizado  
             if (carrinho.Finalizado == true)
             {
                 return BadRequest("Carrinho já foi finalizado.");
             }
 
-            // Verifica se o carrinho está vazio
+            // Verifica se o carrinho está vazio  
             var itensCarrinho = await _context.ItensCarrinhos.Where(i => i.CarrinhoId == id).ToListAsync();
             if (itensCarrinho.Count == 0 || !carrinho.ItensCarrinhos.Any())
             {
                 return BadRequest("Carrinho vazio.");
             }
 
-            // Calcula o valor total do carrinho
+            // Calcula o valor total do carrinho  
             decimal valorTotal = 0;
             foreach (var item in itensCarrinho)
             {
@@ -153,12 +153,12 @@ namespace APIDevSteam.Controllers
                 {
                     valorTotal += jogo.Preco;
                 }
-
             }
-            // Adiciona os jogos comprados à lista de jogos do usuário
+
+            // Adiciona os jogos comprados à lista de jogos do usuário  
             foreach (var item in carrinho.ItensCarrinhos)
             {
-                // Verifica se o jogo já foi comprado pelo usuário
+                // Verifica se o jogo já foi comprado pelo usuário  
                 var jogoJaComprado = await _context.UsuariosJogos
                     .AnyAsync(uj => uj.UsuarioId == carrinho.UsuarioId.ToString() && uj.GameId == item.GameId);
 
@@ -173,22 +173,18 @@ namespace APIDevSteam.Controllers
 
                     _context.UsuariosJogos.Add(usuarioJogo);
                 }
-
-                // Atualiza o carrinho
-                carrinho.Finalizado = true;
-                carrinho.DataFinalizacao = DateTime.Now;
-                carrinho.UsuarioId = Guid.Parse(usuarioId);
-                carrinho.ValorTotal = valorTotal;
-
-                _context.Entry(carrinho).State = EntityState.Modified;
-                await _context.SaveChangesAsync();
-
-                return Ok("Compra finalizada com sucesso");
             }
 
+            // Atualiza o carrinho  
+            carrinho.Finalizado = true;
+            carrinho.DataFinalizacao = DateTime.Now;
+            carrinho.UsuarioId = Guid.Parse(usuarioId);
+            carrinho.ValorTotal = valorTotal;
 
+            _context.Entry(carrinho).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
-
+            return Ok("Compra finalizada com sucesso");
         }
     }
 }
