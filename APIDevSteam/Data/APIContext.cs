@@ -21,6 +21,9 @@ namespace APIDevSteam.Data
         public DbSet<ItemCarrinho> ItensCarrinhos { get; set; } // DbSet para a Classe Comentario
         public DbSet<Cupom> Cupons { get; set; }
         public DbSet<CupomCarrinho> CuponsCarrinho { get; set; } // DbSet para a Classe Comentario
+        public DbSet<Cartao> Cartoes { get; set; } // DbSet para a Classe Comentario
+        public DbSet<UsuarioCartao> UsuarioCartoes { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,6 +40,8 @@ namespace APIDevSteam.Data
             modelBuilder.Entity<ItemCarrinho>().ToTable("ItensCarrinhos");
             modelBuilder.Entity<Cupom>().ToTable("Cupons");
             modelBuilder.Entity<CupomCarrinho>().ToTable("CuponsCarrinho");
+            modelBuilder.Entity<UsuarioCartao>().ToTable("UsuarioCartoes");
+            modelBuilder.Entity<Cartao>().ToTable("Cartoes");
 
             // Configuração da relação entre Usuario e UsuarioJogo
             modelBuilder.Entity<UsuarioJogo>()

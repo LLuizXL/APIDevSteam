@@ -264,6 +264,25 @@ namespace APIDevSteam.Controllers
             return Ok(jogosComDesconto);
         }
 
+
+        // [HttpPost] : define automaticamente se o jogo é um lançamento
+        [HttpPost("DefinirLancamento")]
+        public async Task<IActionResult> DefinirLancamento(Guid jogoId)
+        {
+            // Verifica se o jogo existe
+            var jogo = await _context.Jogos.FindAsync(jogoId);
+            if (jogo == null)
+                return NotFound("Jogo não encontrado.");
+            if (jogo.DataLancamento.HasValue && jogo.DataLancamento.Value.Year == DateTime.Now.Year)
+            {
+                jogo.Lancamento = true;
+                _context.Entry(jogo).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                return Ok("Jogo definido como lançamento.");
+            }
+            return BadRequest("O jogo não foi lançado no ano atual.");
+        }
+
         // [HttpGet] : Listar Jogos em Lançamento
         [HttpGet("ListarJogosEmLancamento")]
         public async Task<IActionResult> ListarJogosEmLancamento()

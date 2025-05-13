@@ -10,6 +10,7 @@
         public string Descricao { get; set; }
 
         public decimal? PrecoOriginal { get; set; }
+        public DateOnly? DataLancamento { get; set; } = DateOnly.FromDateTime(DateTime.Now);
         public bool? Lancamento { get; set; } = false;
 
         // Lista de usuários que compraram o jogo
